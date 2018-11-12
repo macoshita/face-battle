@@ -1,6 +1,6 @@
 <template lang="pug">
 #main(ref="main")
-  camera.camera(ref="camera" :width="videoWidth" :height="videoHeight")
+  camera.camera(ref="camera")
   .loading(v-if="scene === 0") Loading...
   .scene(v-if="scene === 1")
     h1.title 変顔バトル
@@ -11,8 +11,8 @@
     img.latest-face(v-if="initialFace.url" :src="initialFace.url")
     .msg 5 回連続で変顔を作ってください
     .buttons
-      a.button(@click="start") Let's 変顔!
-      a.button(@click="scene = 1") ふつう顔を撮り直す
+      a.button.button-clear(@click="scene = 1") ふつう顔を撮り直す
+      a.button(@click="start") Let's 変顔!!!
   .scene(v-if="[3, 4].includes(scene)")
     template(v-if="scene === 3")
       .msg {{ faces.length + 1 }} 枚目...
@@ -50,8 +50,6 @@ export default class Home extends Vue {
   scene = 0
   initialFace: FaceData = {} as FaceData
   faces: FaceData[] = []
-  videoWidth: number = 0
-  videoHeight: number = 0
   timer: number = 0
   scoresInitFace: number[] = []
   scoresOriginality: number[] = []
@@ -59,11 +57,6 @@ export default class Home extends Vue {
 
   mounted() {
     this.initModels()
-    this.onResize()
-    window.addEventListener('resize', this.onResize);
-    this.$nextTick(() => {
-      this.camera.init()
-    })
   }
 
   get camera(): Camera {
@@ -91,12 +84,6 @@ export default class Home extends Vue {
     } else {
       return "変顔神";
     }
-  }
-
-  onResize() {
-    const main = this.$refs.main as HTMLElement
-    this.videoWidth = main.clientWidth
-    this.videoHeight = main.clientHeight
   }
 
   async initModels() {
@@ -182,15 +169,22 @@ export default class Home extends Vue {
 }
 </script>
 
+<style lang="sass">
+html, body
+  height: 100%
+  overflow: hidden
+</style>
+
 <style lang="sass" scoped>
 #main
   position: relative
   margin: auto
-  width: 100vw
-  max-width: 640px
-  height: 100vh
+  width: 100%
+  max-width: 720px
+  height: 100%
   max-height: 720px
   color: black
+  overflow: hidden
 
 .latest-face
   display: block
@@ -201,14 +195,18 @@ export default class Home extends Vue {
   height: 80px
   object-fit: cover
 
-.camera,
 .loading,
 .scene
   position: absolute
   top: 0
-  bottom: 0
   left: 0
-  right: 0
+  width: 100%
+  height: 100%
+
+.camera
+  object-fit: cover
+  width: 100%
+  height: 100%
 
 .loading
   background-color: rgba(255,255,255,.7)
@@ -219,22 +217,24 @@ export default class Home extends Vue {
 
 .scene
   display: grid
-  grid-template-rows: 100px 1fr 60px 60px 80px
+  grid-template-rows: 100px 1fr 60px 60px 20vw
   .title
+    grid-row: 1
     background-color: rgba(255,255,255,.7)
     text-align: center
     margin: auto 0
     padding: 10px 0
-    grid-row: 1
   .result
     grid-row: 2
     position: relative
+    width: 90%
+    height: 100%
     display: flex
     align-items: center
     justify-content: center
     text-align: center
     background-color: rgba(255,255,255,.7)
-    margin: 20px
+    margin: auto
     > .header-msg
       position: absolute
       width: 100%
@@ -246,16 +246,16 @@ export default class Home extends Vue {
       font-size: 2.5rem
       font-weight: bold
   .msg
+    grid-row: 3
     background-color: rgba(255,255,255,.7)
     text-align: center
-    grid-row: 3
     margin: auto
     padding: 10px
   .buttons
     grid-row: 4
     display: flex
     align-items: center
-    justify-content: center
+    justify-content: space-around
   .faces
     grid-row: 5
     display: grid
