@@ -7,8 +7,8 @@ import { Component, Vue } from "vue-property-decorator";
 
 @Component
 export default class Camera extends Vue {
-  width = 1280
-  height = 720
+  width = 1280;
+  height = 720;
 
   async mounted() {
     try {
@@ -18,12 +18,12 @@ export default class Camera extends Vue {
       });
       const video = this.$refs.video as HTMLVideoElement;
       video.srcObject = stream;
-      const s = stream.getVideoTracks()[0].getSettings()
-      const { width, height } = s
-      this.width = width || 1280
-      this.height = height || 720
+      const s = stream.getVideoTracks()[0].getSettings();
+      const { width, height } = s;
+      this.width = width || 1280;
+      this.height = height || 720;
     } catch (e) {
-      window.alert(e)
+      window.alert(e);
     }
   }
   snapshot() {
@@ -35,7 +35,7 @@ export default class Camera extends Vue {
 
     const ctx = canvas.getContext("2d");
     if (!ctx) {
-      throw new Error('画像の取得に失敗しました')
+      throw new Error("画像の取得に失敗しました");
     }
 
     ctx.drawImage(video, 0, 0, this.width, this.height);

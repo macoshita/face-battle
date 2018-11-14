@@ -3,8 +3,8 @@ router-view
 </template>
 
 <script lang="ts">
-import 'normalize.css';
-import 'milligram';
+import "normalize.css";
+import "milligram";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component
