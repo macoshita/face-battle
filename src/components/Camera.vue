@@ -24,15 +24,15 @@ export default class Camera extends Vue {
     const { videoWidth, videoHeight } = video
 
     const canvas = document.createElement('canvas')
-    canvas.width = videoWidth
-    canvas.height = videoHeight
+    canvas.width = 320
+    canvas.height = (canvas.width / videoWidth) * videoHeight
 
     const ctx = canvas.getContext('2d')
     if (!ctx) {
       throw new Error('画像の取得に失敗しました')
     }
 
-    ctx.drawImage(video, 0, 0, videoWidth, videoHeight)
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
     return canvas
   }
