@@ -132,7 +132,7 @@ export default class Home extends Vue {
         face.canvas
       )) as Float32Array
       const distance = faceapi.euclideanDistance(desc, desc2)
-      const score = Math.floor((1 - distance) * 100)
+      const score = Math.floor(distance * 100)
       this.scoresInitFace.push(score)
       descs.push(desc2)
       totalScore += score
@@ -142,7 +142,7 @@ export default class Home extends Vue {
       for (let j = i + 1; j < descs.length; j++) {
         const b = descs[j]
         const distance = faceapi.euclideanDistance(a, b)
-        const score = Math.floor((1 - distance) * 100)
+        const score = Math.floor(distance * 100)
         this.scoresOriginality.push(score)
         totalScore += score
       }
