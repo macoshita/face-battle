@@ -230,7 +230,9 @@ html, body
 
 .scene
   display: grid
-  grid-template-rows: 100px 1fr 60px 60px 20vw
+  grid-template-rows: 100px 1fr 60px 60px 144px
+  @media(max-width: 720px)
+    grid-template-rows: 100px 1fr 60px 60px 75px
   .title
     grid-row: 1
     background-color: rgba(255,255,255,.7)
