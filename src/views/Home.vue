@@ -89,8 +89,10 @@ export default class Home extends Vue {
 
   async initModels() {
     try {
-      await faceapi.loadSsdMobilenetv1Model(FACE_API_MODEL_URL)
-      await faceapi.loadFaceRecognitionModel(FACE_API_MODEL_URL)
+      await Promise.all([
+        faceapi.loadSsdMobilenetv1Model(FACE_API_MODEL_URL),
+        faceapi.loadFaceRecognitionModel(FACE_API_MODEL_URL)
+      ])
     } finally {
       this.scene = 1
     }
