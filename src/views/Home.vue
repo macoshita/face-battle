@@ -1,6 +1,7 @@
 <template lang="pug">
 #main(ref="main")
   camera.camera(ref="camera")
+  .flash(:style="{ opacity: flashOpacity }")
   .loading(v-if="scene === 0") Loading...
   .scene(v-if="scene === 1")
     h1.title 変顔バトル
@@ -25,7 +26,6 @@
         a.button(@click="replay") もういちど
     .faces
       img.face(v-for="face in faces" :src="face.url")
-    
 </template>
 
 <script lang="ts">
@@ -54,6 +54,7 @@ export default class Home extends Vue {
   scoresInitFace: number[] = [];
   scoresOriginality: number[] = [];
   totalScore = 0;
+  flashOpacity = 0;
 
   mounted() {
     this.initModels();
@@ -152,6 +153,7 @@ export default class Home extends Vue {
 
   async getFace() {
     const input = this.camera.snapshot();
+    this.flash()
     const detection = await faceapi.detectSingleFace(input);
     if (!detection) {
       throw new Error("顔取得に失敗しました");
@@ -169,6 +171,11 @@ export default class Home extends Vue {
     this.scoresOriginality = [];
     this.totalScore = 0;
     this.scene = 1;
+  }
+
+  flash() {
+    this.flashOpacity = 1
+    TweenLite.to(this.$data, 0.3, { flashOpacity: 0 });
   }
 }
 </script>
@@ -269,4 +276,13 @@ html, body
       height: 100%
       object-fit: cover
       order: 0
+
+.flash
+  position: absolute
+  top: 0
+  bottom: 0
+  width: 100%
+  height: 100%
+  background-color: white
+  opacity: 0
 </style>
