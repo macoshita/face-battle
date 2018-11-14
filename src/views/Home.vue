@@ -29,16 +29,16 @@
 </template>
 
 <script lang="ts">
-import { TweenLite } from "gsap";
-import * as faceapi from "face-api.js";
-import { Component, Vue } from "vue-property-decorator";
-import Camera from "@/components/Camera.vue";
+import { TweenLite } from 'gsap'
+import * as faceapi from 'face-api.js'
+import { Component, Vue } from 'vue-property-decorator'
+import Camera from '@/components/Camera.vue'
 
-const FACE_API_MODEL_URL = "/face-api-models";
+const FACE_API_MODEL_URL = '/face-api-models'
 
 interface FaceData {
-  canvas: HTMLCanvasElement;
-  url: string;
+  canvas: HTMLCanvasElement
+  url: string
 }
 
 @Component({
@@ -47,135 +47,135 @@ interface FaceData {
   }
 })
 export default class Home extends Vue {
-  scene = 0;
-  initialFace: FaceData = {} as FaceData;
-  faces: FaceData[] = [];
-  timer: number = 0;
-  scoresInitFace: number[] = [];
-  scoresOriginality: number[] = [];
-  totalScore = 0;
-  flashOpacity = 0;
+  scene = 0
+  initialFace: FaceData = {} as FaceData
+  faces: FaceData[] = []
+  timer: number = 0
+  scoresInitFace: number[] = []
+  scoresOriginality: number[] = []
+  totalScore = 0
+  flashOpacity = 0
 
   mounted() {
-    this.initModels();
+    this.initModels()
   }
 
   get camera(): Camera {
-    return this.$refs.camera as Camera;
+    return this.$refs.camera as Camera
   }
 
   get animatedScore() {
-    return Math.floor(this.totalScore);
+    return Math.floor(this.totalScore)
   }
 
   get scoreStyle() {
-    const fs = Math.floor(this.animatedScore / 100) * 10 + 50;
-    const r = 255 - Math.floor(255 / (this.animatedScore + 1));
+    const fs = Math.floor(this.animatedScore / 100) * 10 + 50
+    const r = 255 - Math.floor(255 / (this.animatedScore + 1))
     return {
       fontSize: `${fs}px`,
       color: `rgb(${r},0,0)`
-    };
+    }
   }
 
   get scoreMessage() {
     if (this.animatedScore < 400) {
-      return "平凡";
+      return '平凡'
     } else if (this.animatedScore < 800) {
-      return "全米が笑った";
+      return '全米が笑った'
     } else {
-      return "変顔神";
+      return '変顔神'
     }
   }
 
   async initModels() {
     try {
-      await faceapi.loadSsdMobilenetv1Model(FACE_API_MODEL_URL);
-      await faceapi.loadFaceRecognitionModel(FACE_API_MODEL_URL);
+      await faceapi.loadSsdMobilenetv1Model(FACE_API_MODEL_URL)
+      await faceapi.loadFaceRecognitionModel(FACE_API_MODEL_URL)
     } finally {
-      this.scene = 1;
+      this.scene = 1
     }
   }
 
   async initFace() {
-    const canvas = await this.getFace();
+    const canvas = await this.getFace()
     this.initialFace = {
       canvas,
       url: canvas.toDataURL()
-    };
-    this.scene = 2;
+    }
+    this.scene = 2
   }
 
   start() {
-    this.scene = 3;
+    this.scene = 3
     this.timer = setInterval(async () => {
-      const canvas = await this.getFace();
+      const canvas = await this.getFace()
       this.faces.push({
         canvas,
         url: canvas.toDataURL()
-      });
+      })
       if (this.faces.length === 5) {
-        clearInterval(this.timer);
-        this.scene = 4;
-        this.calcScore();
+        clearInterval(this.timer)
+        this.scene = 4
+        this.calcScore()
       }
-    }, 1500);
+    }, 1500)
   }
 
   async calcScore() {
     const desc = (await faceapi.computeFaceDescriptor(
       this.initialFace.canvas
-    )) as Float32Array;
-    const descs = [];
-    let totalScore = 0;
+    )) as Float32Array
+    const descs = []
+    let totalScore = 0
     for (const face of this.faces) {
       const desc2 = (await faceapi.computeFaceDescriptor(
         face.canvas
-      )) as Float32Array;
-      const distance = faceapi.euclideanDistance(desc, desc2);
-      const score = Math.floor((1 - distance) * 100);
-      this.scoresInitFace.push(score);
-      descs.push(desc2);
-      totalScore += score;
+      )) as Float32Array
+      const distance = faceapi.euclideanDistance(desc, desc2)
+      const score = Math.floor((1 - distance) * 100)
+      this.scoresInitFace.push(score)
+      descs.push(desc2)
+      totalScore += score
     }
     for (let i = 0; i < descs.length - 1; i++) {
-      const a = descs[i];
+      const a = descs[i]
       for (let j = i + 1; j < descs.length; j++) {
-        const b = descs[j];
-        const distance = faceapi.euclideanDistance(a, b);
-        const score = Math.floor((1 - distance) * 100);
-        this.scoresOriginality.push(score);
-        totalScore += score;
+        const b = descs[j]
+        const distance = faceapi.euclideanDistance(a, b)
+        const score = Math.floor((1 - distance) * 100)
+        this.scoresOriginality.push(score)
+        totalScore += score
       }
     }
 
-    TweenLite.to(this.$data, 3, { totalScore });
+    TweenLite.to(this.$data, 3, { totalScore })
   }
 
   async getFace() {
-    const input = this.camera.snapshot();
+    const input = this.camera.snapshot()
     this.flash()
-    const detection = await faceapi.detectSingleFace(input);
+    const detection = await faceapi.detectSingleFace(input)
     if (!detection) {
-      throw new Error("顔取得に失敗しました");
+      throw new Error('顔取得に失敗しました')
     }
-    const { box } = detection;
-    const [extractedCanvas] = await faceapi.extractFaces(input, [box]);
-    return extractedCanvas;
+    const { box } = detection
+    const [extractedCanvas] = await faceapi.extractFaces(input, [box])
+    return extractedCanvas
   }
 
   replay() {
-    this.initialFace = {} as FaceData;
-    this.faces = [];
-    this.timer = 0;
-    this.scoresInitFace = [];
-    this.scoresOriginality = [];
-    this.totalScore = 0;
-    this.scene = 1;
+    this.initialFace = {} as FaceData
+    this.faces = []
+    this.timer = 0
+    this.scoresInitFace = []
+    this.scoresOriginality = []
+    this.totalScore = 0
+    this.scene = 1
   }
 
   flash() {
     this.flashOpacity = 1
-    TweenLite.to(this.$data, 0.3, { flashOpacity: 0 });
+    TweenLite.to(this.$data, 0.3, { flashOpacity: 0 })
   }
 }
 </script>
